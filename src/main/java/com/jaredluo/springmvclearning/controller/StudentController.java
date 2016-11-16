@@ -2,6 +2,8 @@ package com.jaredluo.springmvclearning.controller;
 
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,15 @@ public class StudentController {
 		logger.info("viewStudentWithPath, studentName:{}", studentName);
 		Student student = studentService.getStudentByName(studentName);
 		model.put("student", student);
+		return "home";
+	}
+
+	@RequestMapping(value = "/viewWithHttp")
+	public String viewStudentWithHttp(HttpServletRequest request, Model model) {
+		String studentName = request.getParameter("studentName");
+		logger.info("viewStudentWithHttp, studentName:{}", studentName);
+		Student student = studentService.getStudentByName(studentName);
+		model.addAttribute(student);
 		return "home";
 	}
 
