@@ -1,5 +1,10 @@
 package com.jaredluo.springmvclearning.controller;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -10,11 +15,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.jaredluo.springmvclearning.model.Student;
 import com.jaredluo.springmvclearning.service.StudentService;
@@ -65,6 +72,24 @@ public class StudentController {
 		logger.info(ReflectionToStringBuilder.toString(student));
 
 		return "redirect:viewWithPath/" + student.getStudentName();
+	}
+
+	@RequestMapping(value = "/upload", method = RequestMethod.GET)
+	public String upload() {
+		return "admin/upload";
+	}
+
+	@RequestMapping(value = "/doUpload", method = RequestMethod.POST)
+	public String doUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
+		if (!file.isEmpty()) {
+			logger.info("uploaded file's origin name: " + file.getOriginalFilename());
+			File destFile = new File(request.getSession().getServletContext().getRealPath("/"),
+					System.currentTimeMillis() + file.getOriginalFilename());
+			logger.info("dest file path:{}", destFile.getAbsolutePath());
+			OutputStream outputStream = new FileOutputStream(destFile);
+			FileCopyUtils.copy(file.getInputStream(), outputStream);
+		}
+		return "admin/upload_success";
 	}
 
 }
